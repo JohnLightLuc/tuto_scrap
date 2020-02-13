@@ -6,6 +6,7 @@ url = 'https://www.7info.ci/soro-ne-decroche-pas-son-telephone-a-paris/'
 
 
 def recup_categorie(url):
+    
     import json
     import requests
     from bs4 import BeautifulSoup
@@ -30,8 +31,10 @@ def recup_categorie(url):
             cat["nom"] = nom_cat
             cat["url"] = url_cat
             categories.append(cat)
+    
     categories = json.dumps(categories)
-    return categories
+    typ = type(categories)
+    return typ
 
 
 def recupInfoArticles(url):
@@ -75,7 +78,6 @@ def recupDetailArticle(url):
     detail_article = list()
     content = dict()
     if response.status_code ==200:
-        print("#########################################################")
         info_site = dict()
         # -------------------- Recuperation html ------------------------------------- #
         html_soup = BeautifulSoup(response.text, 'html.parser')
@@ -114,13 +116,18 @@ def getCatArticles(url):
     return article
 #print(recup_categorie(url = "https://www.7info.ci/"))
 var = recupInfoArticles(url = "https://www.7info.ci/category/eco-business/")
-print(var)
+#print(var)
 #print(recupDetailArticle(url = "https://www.7info.ci/la-cci-ci-initie-un-cadre-dechange-entre-les-entreprises-et-les-pouvoirs-publics/"))
 
 #print(getCatArticles(url = "https://www.7info.ci/category/eco-business/"))
 
 catArticles = recupInfoArticles(url = "https://www.7info.ci/category/eco-business/")
-print(type(catArticles))
+#print(type(catArticles))
 articles = list()
 #for item in catArti    cles:
     #url_art = item["article_url"]
+print("#############################################")
+
+print(recup_categorie(url = "https://www.7info.ci/"))
+
+print("#############################################")

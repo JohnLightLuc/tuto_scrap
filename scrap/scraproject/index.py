@@ -13,7 +13,7 @@ if response.status_code ==200:
     h1_title = html_soup.find('h1')
     # -------------------- Recuperation presentation ------------------------------------- #
     div_presentaton = html_soup.findAll('div', attrs={'class': 'col-md-2'})
-    # ---------------------Recuperation des services(logements, medecins, reparateur ) ----------------------------- #
+    # --------------------- Recuperation des services(logements, medecins, reparateur ) ----------------------------- #
     compt = 0
     for item in div_presentaton:
       if compt < 3:
