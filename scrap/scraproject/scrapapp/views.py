@@ -107,7 +107,8 @@ def categories(requests):
     return HttpResponse(categories)
 
 
-def articles(requests):
+d                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+ef articles(requests):
     data = recupInfoArticles(url = "https://www.7info.ci/category/ntic/")
     return HttpResponse(data)
 
