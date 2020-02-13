@@ -21,4 +21,6 @@ urlpatterns = [
     path('categories/', views.categories ),
     path('articles', views.articles),
     path('detail', views.detail),
+    path('single', views.singles),
+
 ]
