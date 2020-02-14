@@ -22,5 +22,9 @@ urlpatterns = [
     path('articles', views.articles),
     path('detail', views.detail),
     path('single', views.singles),
+    path('all', views.allArticle),
+    path('ecomatinal', views.allAArticle),
+    
+
 
 ]

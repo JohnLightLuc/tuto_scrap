@@ -3,6 +3,46 @@ url_cat = "/cotedivoire/"
 detail = "/actualite/dossier-gbagbo-ble-goude-a-la-cpi-affi-veut-rencontrer-ouattara-la-reponse-du-chef-de-l-etat-85385.html"
 
 
+def getAllArticles():
+    import json
+    import requests
+    from bs4 import BeautifulSoup
+
+    url = "https://www.lebabi.net/cotedivoire/"
+    response = requests.get(url)
+
+
+    if response.status_code ==200:
+        
+        # -------------------- Declaration des variables ------------------------------------- #
+        myarticles = list()
+        myarticle = dict()
+        # -------------------- Recuperation html ------------------------------------- #
+        html_soup = BeautifulSoup(response.text, 'html.parser')
+        # -------------------- Recuperation des articles------------------------------------- #
+        all_articles = html_soup.find('div', attrs={'id': 'toutes-les-articles'})
+        articles = all_articles.findAll('div', attrs={'class': 'articles'})
+        
+        for article in articles:
+            url_article = article.a["href"]
+            cat_article = article.find('span').text
+            h4 = article.find('h4', attrs={'class':'list-title'})
+            titre = h4.find('a').text
+            image = article.img["src"]
+            descript = article.find('p').text
+
+            myarticle['titre'] = titre
+            myarticle['categorie'] = cat_article
+            myarticle['url'] = url_article
+            myarticle['description'] = descript
+            myarticle['image'] = image
+
+            myarticles.append(myarticle)
+
+    return myarticles
+        
+    
+
 
 def recupCat(url):
     import json
@@ -137,4 +177,5 @@ def recupArticleDetail(url_article):
     return article
 
 
-#print(recupCat(url = "https://www.lebabi.net/"))
+
+

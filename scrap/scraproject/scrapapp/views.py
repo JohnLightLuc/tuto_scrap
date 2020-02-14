@@ -123,10 +123,11 @@ def recupArticleDetail(url_article):
     import requests
     from bs4 import BeautifulSoup
     site = "https://www.lebabi.net"
-    url_detail = "/actualite/dossier-gbagbo-ble-goude-a-la-cpi-affi-veut-rencontrer-ouattara-la-reponse-du-chef-de-l-etat-85385.html"
-    url = "{}{}".format(site,url_detail)
+    url_article = "/actualite/dossier-gbagbo-ble-goude-a-la-cpi-affi-veut-rencontrer-ouattara-la-reponse-du-chef-de-l-etat-85385.html"
+    url = "{}{}".format(site,url_article)
     response = requests.get(url)
     article = dict()
+    infos = list()
     if response.status_code ==200:
         # -------------------- Recuperation html ------------------------------------- #
         html_soup = BeautifulSoup(response.text, 'html.parser')
@@ -147,6 +148,7 @@ def recupArticleDetail(url_article):
         auteur = content[-1]
         auteur = auteur.text
         content.pop(-1)
+        
         img = dict()
         img["url"] = image
         img["description"] = image_descrip
@@ -159,10 +161,120 @@ def recupArticleDetail(url_article):
         article["auteur"] = auteur
         article["tag"] = tag
         article["source"] = source
-    #article = json.dumps(article)
-    return article
+        infos.append(article)
+    #infos = json.loads(infos)
+    
+    return infos
 
 def singles(requests):
     detail = "/actualite/dossier-gbagbo-ble-goude-a-la-cpi-affi-veut-rencontrer-ouattara-la-reponse-du-chef-de-l-etat-85385.html"
     data = recupArticleDetail(detail)
     return HttpResponse(data)
+
+
+def getAllArticles():
+    import json
+    import requests
+    from bs4 import BeautifulSoup
+
+    url = "https://www.lebabi.net/cotedivoire/"
+    response = requests.get(url)
+
+
+    if response.status_code ==200:
+        
+        # -------------------- Declaration des variables ------------------------------------- #
+        myarticles = list()
+        myarticle = dict()
+        # -------------------- Recuperation html ------------------------------------- #
+        html_soup = BeautifulSoup(response.text, 'html.parser')
+        # -------------------- Recuperation des articles------------------------------------- #
+        all_articles = html_soup.find('div', attrs={'id': 'toutes-les-articles'})
+        articles = all_articles.findAll('div', attrs={'class': 'articles'})
+        
+        for article in articles:
+            url_article = article.a["href"]
+            cat_article = article.find('span').text
+            h4 = article.find('h4', attrs={'class':'list-title'})
+            titre = h4.find('a').text
+            image = article.img["src"]
+            descript = article.find('p').text
+
+            myarticle['titre'] = titre
+            myarticle['categorie'] = cat_article
+            myarticle['url'] = url_article
+            myarticle['description'] = descript
+            myarticle['image'] = image
+
+            myarticles.append(myarticle)
+    myarticles = json.dumps(myarticles)
+    return myarticles
+
+
+def allArticle(requests):
+    data = getAllArticles()
+    return HttpResponse(data)
+
+
+def getAllCatArticles(url_cat):
+    import json
+    import requests
+    from bs4 import BeautifulSoup
+    
+    url = "https://www.echomatinal.com/economie/"
+    response = requests.get(url)
+
+    all_articles = list()
+    if response.status_code ==200:
+        
+        # -------------------- Recuperation html ------------------------------------- #
+        html_soup = BeautifulSoup(response.text, 'html.parser')
+        pagination = html_soup.find('div', attrs={'class': 'pagination' })
+        a_all = pagination.findAll('a')
+        a = a_all[-1]
+        last_url = a["href"]
+        page_num = last_url.split('/')
+        page_num = page_num[-2]
+        try:
+            page_num = int(page_num)
+        except:
+            page_num = 0
+        if page_num != 0:
+            
+            for i in range(1, page_num):
+                html_soup = BeautifulSoup(response.text, 'html.parser')
+                content = html_soup.find('div', attrs={'class': 'main-col' })
+                articles = content.findAll('div', attrs={'class': 'default-blog-post' })
+                my_article = dict()
+                for article in articles:
+                    #------------ Titre ------------------------
+                    h2 = article.find('h2')
+                    titre = h2.text
+                    #------------ Update ------------------------
+                    date_update = article.find('span').text
+                    date_update = date_update[4:]
+                    #------------ Lien article ------------------------
+                    lien_art = h2.a["href"]
+
+                    #------------ Lien image ------------------------
+                    detail = article.find('div', attrs={'class': 'bp-details' })
+                    url_image = detail.img["src"]
+                    #------------ Descritpon ------------------------
+                    description = detail.find('p').text
+
+                    #------------ Enregistrement article ------------------------
+                    my_article["titre"] = titre
+                    my_article["date_update"] = date_update
+                    my_article["detail"] = lien_art
+                    my_article["image"] = url_image
+                    my_article["description"] = description
+
+                    all_articles.append(my_article)
+
+    all_articles = json.dumps(all_articles)
+    return all_articles
+
+def allAArticle(requests):
+    data = getAllCatArticles("ueie")
+    return HttpResponse(data)
+                
