@@ -1,3 +1,10 @@
+from django.shortcuts import render
+from django.http import HttpResponse
+import json
+
+from .models import Article
+# Create your views here.
+
 url = "https://www.lebabi.net/"
 url_cat = "/cotedivoire/"
 detail = "/actualite/dossier-gbagbo-ble-goude-a-la-cpi-affi-veut-rencontrer-ouattara-la-reponse-du-chef-de-l-etat-85385.html"
@@ -95,17 +102,58 @@ def recupCatArticles(url_cat):
     myarticles = json.dumps(myarticles)
     return  myarticles
 
+##################### OBTENIR LES ARTICLES ET LEUR CATEGORIE ##################
+
+def getAllArticles():
+    import json
+    import requests 
+    from bs4 import BeautifulSoup
+
+    url = "https://www.lebabi.net/cotedivoire/"
+    response = requests.get(url)
+
+
+    if response.status_code ==200:
+        
+        # -------------------- Declaration des variables ------------------------------------- #
+        myarticles = list()
+        myarticle = dict()
+        # -------------------- Recuperation html ------------------------------------- #
+        html_soup = BeautifulSoup(response.text, 'html.parser')
+        # -------------------- Recuperation des articles------------------------------------- #
+        all_articles = html_soup.find('div', attrs={'id': 'toutes-les-articles'})
+        articles = all_articles.findAll('div', attrs={'class': 'articles'})
+        
+        for article in articles:
+            url_article = article.a["href"]
+            cat_article = article.find('span').text
+            h4 = article.find('h4', attrs={'class':'list-title'})
+            titre = h4.find('a').text
+            image = article.img["src"]
+            descript = article.find('p').text
+
+            myarticle['titre'] = titre
+            myarticle['categorie'] = cat_article
+            myarticle['url'] = url_article
+            myarticle['description'] = descript
+            myarticle['image'] = image
+
+            myarticles.append(myarticle)
+
+    return myarticles
+
+
 ##################### OBTENIR ARTICLE PAR GROUPEMENTS ##################
 
-def recupArticleDetail():
+def recupArticleDetail(url_article):
     import json
     import requests
     from bs4 import BeautifulSoup
     site = "https://www.lebabi.net"
-    url_detail = "/actualite/situation-securitaire-le-camp-soro-annonce-de-nouvelles-arrestations-85370.html"
-    url = "{}{}".format(site,url_detail)
+    #url_detail = "/actualite/dossier-gbagbo-ble-goude-a-la-cpi-affi-veut-rencontrer-ouattara-la-reponse-du-chef-de-l-etat-85385.html"
+    url = "{}{}".format(site,url_article)
     response = requests.get(url)
-    data = list()
+    my_article = list()
     article = dict()
     if response.status_code ==200:
         # -------------------- Recuperation html ------------------------------------- #
@@ -114,7 +162,6 @@ def recupArticleDetail():
         # -------------------- Recuperation d'info ------------------------------------- #
 
         tag = main_page.find('h2', attrs={'class': 'lined_une'}).text
-        
         source = main_page.find('div', attrs={'class': 'post-meta'}).text
         source = source[46:]
         mytitre = main_page.find('h1', attrs={'class': 'post-title'}).text
@@ -140,49 +187,38 @@ def recupArticleDetail():
         article["auteur"] = auteur
         article["tag"] = tag
         article["source"] = source
-        data.append(article)
+        my_article.append(article)
     #article = json.dumps(article)
-    return data
-
-##################### OBTENIR LES ARTICLES ET LEUR CATEGORIE ##################
-
-def getAllArticles():
-    import json
-    import requests
-    from bs4 import BeautifulSoup
-
-    url = "https://www.lebabi.net/cotedivoire/"
-    response = requests.get(url)
+    return my_article       
 
 
-    if response.status_code ==200:
-        
-        # -------------------- Declaration des variables ------------------------------------- #
-        myarticles = list()
-        myarticle = dict()
-        # -------------------- Recuperation html ------------------------------------- #
-        html_soup = BeautifulSoup(response.text, 'html.parser')
-        # -------------------- Recuperation des articles------------------------------------- #
-        all_articles = html_soup.find('div', attrs={'id': 'toutes-les-articles'})
-        articles = all_articles.findAll('div', attrs={'class': 'articles'})
-        print(articles)
-        for article in articles:
-            url_article = article.a["href"]
-            cat_article = article.find('span').text
-            h4 = article.find('h4', attrs={'class':'list-title'})
-            titre = h4.find('a').text
-            image = article.img["src"]
-            descript = article.find('p').text
-
-            myarticle['titre'] = titre
-            myarticle['categorie'] = cat_article
-            myarticle['url'] = url_article
-            myarticle['description'] = descript
-            myarticle['image'] = image
-
-            myarticles.append(myarticle)
-
-    return myarticles
+def articles(requests):
+    myarticles = list(getAllArticles())
     
-cats = list(getAllArticles())
-print(cats)
+    i = 1
+    for article in myarticles:
+        try:
+            new_Article = Article()
+            new_Article.titre = article["titre"]
+            new_Article.categorie = article["categorie"]
+            new_Article.url_article = article["url"] 
+            new_Article.image_min = article["image"] 
+            new_Article.description = article["description"] 
+            
+
+            detail = list(recupArticleDetail(article["url"]))
+            print(detail)
+            detail = detail[0]
+            new_Article.image_max = detail['image']["url"]
+            new_Article.contenu = detail['content']
+            new_Article.save()
+            print(i,"articles enregistrés")
+            i = i +     1
+        except:
+            print("Erroor")
+        
+
+
+    myarticles = json.dumps(myarticles)
+
+    return HttpResponse(myarticles)

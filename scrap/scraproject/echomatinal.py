@@ -53,7 +53,7 @@ def getAllCatArticles(url_cat):
             page_num = 0
         if page_num != 0:
             
-            for i in range(1, page_num):
+            for i in range(1, page_num +1):
                 html_soup = BeautifulSoup(response.text, 'html.parser')
                 content = html_soup.find('div', attrs={'class': 'main-col' })
                 articles = content.findAll('div', attrs={'class': 'default-blog-post' })
@@ -85,7 +85,8 @@ def getAllCatArticles(url_cat):
 
     all_articles = json.dumps(all_articles)
     return all_articles
-                
+
+               
 
 import json
 import requests
