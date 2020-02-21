@@ -125,6 +125,7 @@ def getAllArticles():
         articles = all_articles.findAll('div', attrs={'class': 'articles'})
         
         for article in articles:
+            print(article)
             url_article = article.a["href"]
             cat_article = article.find('span').text
             h4 = article.find('h4', attrs={'class':'list-title'})
@@ -198,21 +199,22 @@ def articles(requests):
     i = 1
     for article in myarticles:
         try:
-            new_Article = Article()
-            new_Article.titre = article["titre"]
-            new_Article.categorie = article["categorie"]
-            new_Article.url_article = article["url"] 
-            new_Article.image_min = article["image"] 
-            new_Article.description = article["description"] 
+           
+            # new_Article = Article()
+            # new_Article.titre = article["titre"]
+            # new_Article.categorie = article["categorie"]
+            # new_Article.url_article = article["url"] 
+            # new_Article.image_min = article["image"] 
+            # new_Article.description = article["description"] 
             
 
-            detail = list(recupArticleDetail(article["url"]))
-            print(detail)
-            detail = detail[0]
-            new_Article.image_max = detail['image']["url"]
-            new_Article.contenu = detail['content']
-            new_Article.save()
-            print(i,"articles enregistrés")
+            # detail = list(recupArticleDetail(article["url"]))
+            # print(detail)
+            # detail = detail[0]
+            # new_Article.image_max = detail['image']["url"]
+            # new_Article.contenu = detail['content']
+            # new_Article.save()
+            #print(i,article)
             i = i +     1
         except:
             print("Erroor")

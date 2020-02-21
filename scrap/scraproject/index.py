@@ -36,3 +36,7 @@ if response.status_code ==200:
       
 else:
   print(response.status_code)  
+
+
+################ telechargement de video ##############
+  apivideo : "https://downloader.freemake.com/api/videoinfo/8Hu8L7psTHQ"
